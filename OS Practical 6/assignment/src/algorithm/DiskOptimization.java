@@ -271,13 +271,13 @@ public class DiskOptimization {
 
         // Head is moving towards 0
         if (previous - current > 0) {
-                // Reverse sort scan
+                // Reverse sort cscan
                 Collections.sort(cscan);
                 Collections.reverse(cscan);
             }
         // Head is moving towards max cylinder
         else if (previous - current < 0) {
-                // Sort scan
+                // Sort cscan
                 Collections.sort(cscan);
             }
 
@@ -305,13 +305,13 @@ public class DiskOptimization {
 
         // Head is moving towards 0
         if (previous - current > 0) {
-            // Reverse sort scan
+            // Reverse sort look
             Collections.sort(look);
             Collections.reverse(look);
         }
         // Head is moving towards max cylinder
         else if (previous - current < 0) {
-            // Sort scan
+            // Sort look
             Collections.sort(look);
         }
 
