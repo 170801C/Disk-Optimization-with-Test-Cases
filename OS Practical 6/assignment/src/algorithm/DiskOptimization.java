@@ -1,3 +1,4 @@
+// Team: Chester Neo (172544Q), Cara (173616M), Cassandra (172619P), Joanne (170801C)
 package algorithm;
 
 import java.util.ArrayList;
@@ -17,7 +18,7 @@ public class DiskOptimization {
 
     public static void main(String args[]) {
         // Create a new File object with the abstract path of the test case
-        File f = new File("OS Practical 6\\assignment\\res\\diskq3.properties");
+        File f = new File("OS Practical 6\\assignment\\res\\diskq1.properties");
 
         // Instantiate from DiskOptimization class with the absolute path of the test case
         new DiskOptimization(f.getAbsolutePath());
@@ -49,6 +50,7 @@ public class DiskOptimization {
         // Order of Access sequence to print out
         String sequence = "";
         // Insert the current as the first cylinder
+        int current = dp.getCurrent();
         sequence += dp.getCurrent();
 
         int previous = dp.getPrevious();
@@ -59,23 +61,23 @@ public class DiskOptimization {
         // Iterate through location[] (algorithm arranged sequence)
         for (int i = 0; i < location.length; i++) {
             // Set current to the iterable element
-            int current = location[i];
+            int current2 = location[i];
 
             // Add the iterable element to the sequence string for display
-            sequence += "," + current;
+            sequence += "," + current2;
 
             // Find the distance between the previous and iterable element
-            int d = Math.abs(previous - current);
+            int d = Math.abs(current - current2);
 
             // Display the workings of the distance calculation
-            working1 += "|" + previous + "-" + current + "|+";
+            working1 += "|" + current + "-" + current2 + "|+";
             working2 += d + "+";
 
             // Find the total distance travelled
             total += d;
 
             // Set previous to the iterable element for the next distance calculation
-            previous = current;
+            current = current2;
         }
 
         // Print out the workings
@@ -217,32 +219,32 @@ public class DiskOptimization {
             // If scan does not contain the boundary cylinder, add it in
             if (!scan.contains(0)) {
                 scan.add(0);
-
-                // Reverse sort scan
-                Collections.sort(scan);
-                Collections.reverse(scan);
             }
+            // Reverse sort scan
+            Collections.sort(scan);
+            Collections.reverse(scan);
         }
         // Head is moving towards max cylinder
         else if (previous - current < 0) {
             // If scan does not contain the boundary cylinder, add it in
             if (!scan.contains(cylinders)) {
                 scan.add(cylinders);
-
-                // Sort scan
-                Collections.sort(scan);
             }
+            // Sort scan
+            Collections.sort(scan);
         }
 
         // Find the index of the current cylinder after sorting
         int currentIndex = scan.indexOf(current);
 
+        System.out.println(scan);
         // Split scan into 2 Lists by the current cylinder
         // List with values from 0 to currentIndex - 1
         List<Integer> startingList = scan.subList(0, currentIndex);
         // List with values from currentIndex to max cylinder index
         List<Integer> endingList = scan.subList(currentIndex, scan.size());
 
+        System.out.println(endingList);
         // Reverse startingList
         Collections.reverse(startingList);
 
@@ -255,7 +257,6 @@ public class DiskOptimization {
 
     // Arrange by CScan
     private List<Integer> arrangeByCSCAN(int current, int previous, int sequence[], int cylinders) {
-
         List<Integer> cscan = new ArrayList<Integer>();
         cscan = arrayToList(sequence);
         cscan.add(current);
@@ -298,7 +299,6 @@ public class DiskOptimization {
 
     // Arrange by Look
     private List<Integer> arrangeByLOOK(int current, int previous, int sequence[], int cylinders) {
-
         List<Integer> look = new ArrayList<Integer>();
         look = arrayToList(sequence);
         look.add(current);

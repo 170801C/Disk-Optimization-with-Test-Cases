@@ -9,7 +9,7 @@ public class DiskParameter {
 	int cylinders;
 	
 	public DiskParameter(Properties p) {
-		this.cylinders = Integer.parseInt(p.getProperty("Cylinders"));
+		this.cylinders = Integer.parseInt(p.getProperty("Cylinders")) - 1;
 		this.current = Integer.parseInt(p.getProperty("Position.Current"));
 		this.previous = Integer.parseInt(p.getProperty("Position.Previous"));
 		String token[] = p.getProperty("Sequence").split(",");
