@@ -1,0 +1,312 @@
+package algorithm;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Collections;
+import java.util.Properties;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.File;
+
+public class DiskOptimization {
+    // Create a new Properties object
+    Properties p = new Properties();
+
+    DiskParameter dp = null;
+
+    public static void main(String args[]) {
+        // Create a new File object with abstract path specified
+        File f = new File("assignment\\res\\diskq1.properties");
+        System.out.println(f.getAbsolutePath());
+        System.out.println(f.getPath());
+
+        new DiskOptimization("C:\\Users\\admin\\Downloads\\OS Practical 6\\OS Practical 6\\assignment\\res\\diskq1.properties");
+    }
+
+    public DiskOptimization(String filename) {
+        try {
+            p.load(new BufferedReader(new FileReader(filename)));
+            dp = new DiskParameter(p);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        generateAnalysis();
+    }
+
+    public void generateAnalysis() {
+        generateFCFS();
+        generateSSTF();
+        generateSCAN();
+        generateCSCAN();
+        generateLOOK();
+    }
+
+    public void printSequence(String name, int location[]) {
+        // Order of Access sequence to print out
+        String sequence = "";
+
+        String working1 = "";
+        String working2 = "";
+        int total = 0;
+        int previous = dp.getPrevious();
+
+        sequence += dp.getCurrent();
+
+        // Iterate through location[]
+        for (int i = 0; i < location.length; i++) {
+            // Set current to i
+            int current = location[i];
+
+            // Add i to the sequence for display
+            sequence += "," + current;
+
+            // Find the distance between the previous and i
+            int d = Math.abs(previous - current);
+
+            // Display the workings of the distance calculation
+            working1 += "|" + previous + "-" + current + "|+";
+            working2 += d + "+";
+
+            // Find the total distance travelled
+            total += d;
+
+            // Set previous to i for the next distance calculation
+            previous = current;
+        }
+
+        System.out.println(name + "\n" + "====");
+        System.out.println("Order of Access: " + sequence);
+
+        System.out.println("Total Distance = " + working1.substring(0, working1.length() - 1));
+        System.out.println("               = " + working2.substring(0, working2.length() - 2));
+        System.out.println("               = " + total + "\n");
+
+    }
+
+    public void generateFCFS() {
+        int location[] = dp.getSequence();
+        printSequence("FCFS", location);
+    }
+
+    public void generateSSTF() {
+        int location[] = arrangeBySSTF(dp.getCurrent(), dp.getSequence());
+        printSequence("SSTF", location);
+    }
+
+    // Helper method to convert Array to List
+    static List<Integer> arrayToList(int sequence[]) {
+        List<Integer> list = new ArrayList<Integer>(sequence.length);
+
+        for (final Integer s : sequence) {
+            list.add(s);
+        }
+
+        return (list);
+    }
+
+    // Helper method to convert List<Integer> to Array int[]
+    int[] toIntArray(List<Integer> list){
+        int[] arr = new int[list.size()];
+
+        // Iterate from index 1 of the List to not take the current, since it is added in printSequence()
+        for(int i = 1; i < arr.length; i++) {
+            arr[i - 1] = list.get(i);
+        }
+        // Remove the last element 0 from the Array, since the Array index was offset by 1
+        arr = Arrays.copyOf(arr, arr.length - 1);
+
+        return arr;
+    }
+
+    public void generateSCAN() {
+        List<Integer> location = arrangeBySCAN(dp.getCurrent(), dp.getPrevious(), dp.getSequence(), dp.getCylinders());
+        // Convert List to Array
+        int location2[] = toIntArray(location);
+
+        System.out.println(Arrays.toString(location2));
+
+        printSequence("Scan", location2);
+    }
+
+    public void generateCSCAN() {
+        List<Integer> location = arrangeByCSCAN(dp.getCurrent(), dp.getPrevious(), dp.getSequence(), dp.getCylinders());
+        // Convert List to Array
+        int location2[] = toIntArray(location);
+
+        System.out.println(Arrays.toString(location2));
+
+        printSequence("CScan", location2);
+    }
+
+    public void generateLOOK() {
+        List<Integer> location = arrangeByLOOK(dp.getCurrent(), dp.getPrevious(), dp.getSequence(), dp.getCylinders());
+        // Convert List to Array
+        int location2[] = toIntArray(location);
+
+        System.out.println(Arrays.toString(location2));
+
+        printSequence("Look", location2);
+    }
+
+    // Arrange by SSTF
+    private int[] arrangeBySSTF(int current, int sequence[]) {
+        int n = sequence.length;
+        int sstf[] = new int[n];
+        for (int i = 0; i < n; i++) {
+            sstf[i] = sequence[i];
+        }
+
+        int ii = -1;
+        for (int i = 0; i < n; i++) {
+            int minimum = Integer.MAX_VALUE;
+            ii = i;
+            for (int j = i; j < n; j++) {
+                int distance = Math.abs(current - sstf[j]);
+                if (distance < minimum) {
+                    ii = j;
+                    minimum = distance;
+                }
+            }
+
+            int tmp = sstf[i];
+            sstf[i] = sstf[ii];
+            sstf[ii] = tmp;
+            current = sstf[i];
+
+        }
+        System.out.println(Arrays.toString(sstf));
+        return sstf;
+    }
+
+    // Arrange by Scan
+    private List<Integer> arrangeBySCAN(int current, int previous, int sequence[], int cylinders) {
+        // Use a List instead of an Array to have a resizable list and manipulate it
+        List<Integer> scan = new ArrayList<Integer>();
+        // Populate data in Array into List
+        scan = arrayToList(sequence);
+        scan.add(current);
+
+        // Head is moving towards 0
+        if (previous - current > 0) {
+            // If scan does not contain the boundary cylinder, add it in
+            if (!scan.contains(0)) {
+                scan.add(0);
+
+                // Reverse sort scan
+                Collections.sort(scan);
+                Collections.reverse(scan);
+            }
+        }
+        // Head is moving towards max cylinder
+        else if (previous - current < 0) {
+            // If scan does not contain the boundary cylinder, add it in
+            if (!scan.contains(cylinders)) {
+                scan.add(cylinders);
+
+                // Sort scan
+                Collections.sort(scan);
+            }
+        }
+
+        // Find the index of the current cylinder after sorting
+        int currentIndex = scan.indexOf(current);
+
+        // Split scan into 2 Lists by the current cylinder
+        // List with values from 0 to currentIndex - 1
+        List<Integer> startingList = scan.subList(0, currentIndex);
+        // List with values from currentIndex to max cylinder index
+        List<Integer> endingList = scan.subList(currentIndex, scan.size());
+
+        // Reverse startingList
+        Collections.reverse(startingList);
+
+        // Append startingList to endingList to recreate the entire list in Scan order
+        endingList.addAll(startingList);
+
+        System.out.println(endingList);
+        return endingList;
+    }
+
+    // Arrange by CScan
+    private List<Integer> arrangeByCSCAN(int current, int previous, int sequence[], int cylinders) {
+
+        List<Integer> cscan = new ArrayList<Integer>();
+        cscan = arrayToList(sequence);
+        cscan.add(current);
+
+        // Add boundary cylinders
+        if (!cscan.contains(cylinders)) {
+            cscan.add(cylinders);
+        }
+        if (!cscan.contains(0)) {
+            cscan.add(0);
+        }
+
+        // Head is moving towards 0
+        if (previous - current > 0) {
+                // Reverse sort scan
+                Collections.sort(cscan);
+                Collections.reverse(cscan);
+            }
+        // Head is moving towards max cylinder
+        else if (previous - current < 0) {
+                // Sort scan
+                Collections.sort(cscan);
+            }
+
+        // Find the index of the current cylinder after sorting
+        int currentIndex = cscan.indexOf(current);
+
+        // Split scan into 2 Lists by the current cylinder
+        // List with values from 0 to currentIndex - 1
+        List<Integer> startingList = cscan.subList(0, currentIndex);
+        // List with values from currentIndex to max cylinder index
+        List<Integer> endingList = cscan.subList(currentIndex, cscan.size());
+
+        // Append startingList to endingList to recreate the entire list in Scan order
+        endingList.addAll(startingList);
+
+        System.out.println(endingList);
+        return endingList;
+    }
+
+    // Arrange by Look
+    private List<Integer> arrangeByLOOK(int current, int previous, int sequence[], int cylinders) {
+
+        List<Integer> look = new ArrayList<Integer>();
+        look = arrayToList(sequence);
+        look.add(current);
+
+        // Head is moving towards 0
+        if (previous - current > 0) {
+            // Reverse sort scan
+            Collections.sort(look);
+            Collections.reverse(look);
+        }
+        // Head is moving towards max cylinder
+        else if (previous - current < 0) {
+            // Sort scan
+            Collections.sort(look);
+        }
+
+        // Find the index of the current cylinder after sorting
+        int currentIndex = look.indexOf(current);
+
+        // Split scan into 2 Lists by the current cylinder
+        // List with values from 0 to currentIndex - 1
+        List<Integer> startingList = look.subList(0, currentIndex);
+        // List with values from currentIndex to max cylinder index
+        List<Integer> endingList = look.subList(currentIndex, look.size());
+
+        // Reverse startingList
+        Collections.reverse(startingList);
+
+        // Append startingList to endingList to recreate the entire list in Scan order
+        endingList.addAll(startingList);
+
+        System.out.println(endingList);
+        return endingList;
+    }
+}
