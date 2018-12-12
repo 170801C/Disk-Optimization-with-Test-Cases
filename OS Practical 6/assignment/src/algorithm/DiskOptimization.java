@@ -132,8 +132,6 @@ public class DiskOptimization {
         // Convert List to Array
         int location2[] = toIntArray(location);
 
-        System.out.println(Arrays.toString(location2));
-
         printSequence("Scan", location2);
     }
 
@@ -142,8 +140,6 @@ public class DiskOptimization {
         // Convert List to Array
         int location2[] = toIntArray(location);
 
-        System.out.println(Arrays.toString(location2));
-
         printSequence("CScan", location2);
     }
 
@@ -151,8 +147,6 @@ public class DiskOptimization {
         List<Integer> location = arrangeByLOOK(dp.getCurrent(), dp.getPrevious(), dp.getSequence(), dp.getCylinders());
         // Convert List to Array
         int location2[] = toIntArray(location);
-
-        System.out.println(Arrays.toString(location2));
 
         printSequence("Look", location2);
     }
@@ -200,9 +194,8 @@ public class DiskOptimization {
 
             // Set current to sstf[i] so that the next iteration has the current as the previous element in the arranged sequence
             current = sstf[i];
-
         }
-        System.out.println(Arrays.toString(sstf));
+
         return sstf;
     }
 
@@ -237,21 +230,18 @@ public class DiskOptimization {
         // Find the index of the current cylinder after sorting
         int currentIndex = scan.indexOf(current);
 
-        System.out.println(scan);
         // Split scan into 2 Lists by the current cylinder
         // List with values from 0 to currentIndex - 1
         List<Integer> startingList = scan.subList(0, currentIndex);
         // List with values from currentIndex to max cylinder index
         List<Integer> endingList = scan.subList(currentIndex, scan.size());
 
-        System.out.println(endingList);
         // Reverse startingList
         Collections.reverse(startingList);
 
         // Append startingList to endingList to recreate the entire list in Scan order
         endingList.addAll(startingList);
 
-        System.out.println(endingList);
         return endingList;
     }
 
@@ -293,7 +283,6 @@ public class DiskOptimization {
         // Append startingList to endingList to recreate the entire list in Scan order
         endingList.addAll(startingList);
 
-        System.out.println(endingList);
         return endingList;
     }
 
@@ -330,7 +319,6 @@ public class DiskOptimization {
         // Append startingList to endingList to recreate the entire list in Scan order
         endingList.addAll(startingList);
 
-        System.out.println(endingList);
         return endingList;
     }
 }
