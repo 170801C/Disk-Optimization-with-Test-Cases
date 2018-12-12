@@ -16,22 +16,23 @@ public class DiskOptimization {
     DiskParameter dp = null;
 
     public static void main(String args[]) {
-        // Create a new File object with abstract path specified
-        File f = new File("assignment\\res\\diskq1.properties");
-        System.out.println(f.getAbsolutePath());
-        System.out.println(f.getPath());
+        // Create a new File object with the abstract path of the test case
+        File f = new File("OS Practical 6\\assignment\\res\\diskq3.properties");
 
-        new DiskOptimization("C:\\Users\\admin\\Downloads\\OS Practical 6\\OS Practical 6\\assignment\\res\\diskq1.properties");
+        // Instantiate from DiskOptimization class with the absolute path of the test case
+        new DiskOptimization(f.getAbsolutePath());
     }
 
     public DiskOptimization(String filename) {
         try {
+            // Load the test case file into the Properties object
             p.load(new BufferedReader(new FileReader(filename)));
+            // Instantiate from DiskParameter class with the Properties object, to extract and arrange the parameters out for manipulation
             dp = new DiskParameter(p);
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        // Execute the disk optimization algorithms
         generateAnalysis();
     }
 
@@ -43,26 +44,27 @@ public class DiskOptimization {
         generateLOOK();
     }
 
+    // Display the Order of Access and Total Distance of a disk algorithm
     public void printSequence(String name, int location[]) {
         // Order of Access sequence to print out
         String sequence = "";
-
-        String working1 = "";
-        String working2 = "";
-        int total = 0;
-        int previous = dp.getPrevious();
-
+        // Insert the current as the first cylinder
         sequence += dp.getCurrent();
 
-        // Iterate through location[]
+        int previous = dp.getPrevious();
+        int total = 0;
+        String working1 = "";
+        String working2 = "";
+
+        // Iterate through location[] (algorithm arranged sequence)
         for (int i = 0; i < location.length; i++) {
-            // Set current to i
+            // Set current to the iterable element
             int current = location[i];
 
-            // Add i to the sequence for display
+            // Add the iterable element to the sequence string for display
             sequence += "," + current;
 
-            // Find the distance between the previous and i
+            // Find the distance between the previous and iterable element
             int d = Math.abs(previous - current);
 
             // Display the workings of the distance calculation
@@ -72,17 +74,17 @@ public class DiskOptimization {
             // Find the total distance travelled
             total += d;
 
-            // Set previous to i for the next distance calculation
+            // Set previous to the iterable element for the next distance calculation
             previous = current;
         }
 
+        // Print out the workings
         System.out.println(name + "\n" + "====");
         System.out.println("Order of Access: " + sequence);
 
         System.out.println("Total Distance = " + working1.substring(0, working1.length() - 1));
         System.out.println("               = " + working2.substring(0, working2.length() - 2));
         System.out.println("               = " + total + "\n");
-
     }
 
     public void generateFCFS() {
@@ -97,20 +99,23 @@ public class DiskOptimization {
 
     // Helper method to convert Array to List
     static List<Integer> arrayToList(int sequence[]) {
+        // Create a new List with the specified Array size
         List<Integer> list = new ArrayList<Integer>(sequence.length);
 
-        for (final Integer s : sequence) {
+        // Enhanced for loop to loop through the sequence without specifying start and end indexes
+        for (Integer s : sequence) {
             list.add(s);
         }
 
         return (list);
     }
 
-    // Helper method to convert List<Integer> to Array int[]
+    // Helper method to convert List to Array
     int[] toIntArray(List<Integer> list){
+        // Create a new Array with the specified List size
         int[] arr = new int[list.size()];
 
-        // Iterate from index 1 of the List to not take the current, since it is added in printSequence()
+        // Iterate from index 1 of the List so as not to take the current, since it is added in printSequence()
         for(int i = 1; i < arr.length; i++) {
             arr[i - 1] = list.get(i);
         }
@@ -153,26 +158,45 @@ public class DiskOptimization {
     // Arrange by SSTF
     private int[] arrangeBySSTF(int current, int sequence[]) {
         int n = sequence.length;
+
+        // Create a new Array with the sequence size
         int sstf[] = new int[n];
+
+        // Iterate through the sequence and populate its elements into the Array
         for (int i = 0; i < n; i++) {
             sstf[i] = sequence[i];
         }
 
         int ii = -1;
+
+        // Iterate through the Array and for each element i, find the next element that has the shortest distance to it
         for (int i = 0; i < n; i++) {
+            // Set a placeholder max value for the minimum
             int minimum = Integer.MAX_VALUE;
+
+            // Set ii to i
             ii = i;
+
+            // Find the distance between the current (previous element) and each element starting from index i (current element)
             for (int j = i; j < n; j++) {
                 int distance = Math.abs(current - sstf[j]);
+
+                // If the distance is less than the minimum, set minimum to this distance and ii to this minimum element (what you want to find; the next element in the sequence)
                 if (distance < minimum) {
                     ii = j;
                     minimum = distance;
                 }
             }
 
+            // Switch the elements in sstf[], to not lose any value and maintain the size of the Array
+            // Hold sstf[i] in tmp
             int tmp = sstf[i];
+            // Set the next element to go to sstf[i], to replace the current element in the unarranged sequence sstf[i]
             sstf[i] = sstf[ii];
+            // sstf[ii] can now be reassigned the current element. The switch is completed.
             sstf[ii] = tmp;
+
+            // Set current to sstf[i] so that the next iteration has the current as the previous element in the arranged sequence
             current = sstf[i];
 
         }
